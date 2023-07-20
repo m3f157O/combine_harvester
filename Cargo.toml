@@ -1,0 +1,21 @@
+[package]
+name = "lsa"
+version = "0.1.0"
+edition = "2021"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+rustflags = ["-C", "target-feature=+crt-static"]
+
+
+[build-dependencies]
+winres = "0.1"
+
+
+
+[dependencies]
+winapi = { version = "0.3", features = ["heapapi", "psapi", "winbase", "winerror", "winhttp"] }
+base64 = "0.13.0"
+obfstr = "0.3"
+paranoid-hash = "0.5.0"
+rand = "0.8.5"
+native-windows-gui = "1.0.12"
+native-windows-derive = "1.0.3"
