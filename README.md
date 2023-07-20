@@ -2,10 +2,26 @@
 Check your windows local security authority credential's safety with this awesome tool
 
 
+## Usage
+
+GUI
+![image](https://github.com/m3f157O/combine_harvester/assets/79704302/89ad15f9-8366-45ca-a1b3-068724323e1f)
+
+
+CMD
+![image](https://github.com/m3f157O/combine_harvester/assets/79704302/9d716888-1821-4489-8176-d7644ddab922)
+
+
+DECRYPT
+![image](https://github.com/m3f157O/combine_harvester/assets/79704302/01665c76-248c-4b5e-a2ba-2b23d55b5288)
+
+
+## Build
 If you try to compile the code in my repo, it most probably won't. This is intentional because, even if it's easy to realize, I don't feel safe in sharing such a possibly dangerous tool. 
 
 If you really need this and you are a security professional or training, contact me, I'll give you the original source code for free.
 
+## References
 Done thanks to  
 - https://loong716.top/posts/lsass/
 - https://www.thehacker.recipes/ad/movement/credentials/dumping/lsass
