@@ -19,6 +19,8 @@ Check your windows local security authority credential's safety with this awesom
 ## Build
 If you try to compile the code in my repo, it most probably won't. This is intentional because, even if it's easy to realize, I don't feel safe in sharing such a possibly dangerous tool. 
 
+Don't worry, the exe is not backdoored :) 
+
 If you really need this and you are a security professional or training, contact me, I'll give you the original source code for free.
 
 ## References
