@@ -4,15 +4,15 @@ Check your windows local security authority credential's safety with this awesom
 
 ## Usage
 
-GUI
+### GUI
 ![image](https://github.com/m3f157O/combine_harvester/assets/79704302/89ad15f9-8366-45ca-a1b3-068724323e1f)
 
 
-CMD
+### CMD
 ![image](https://github.com/m3f157O/combine_harvester/assets/79704302/9d716888-1821-4489-8176-d7644ddab922)
 
 
-DECRYPT
+### DECRYPT
 ![image](https://github.com/m3f157O/combine_harvester/assets/79704302/01665c76-248c-4b5e-a2ba-2b23d55b5288)
 
 
