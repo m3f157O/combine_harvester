@@ -9,7 +9,8 @@ Check your windows local security authority credential's safety with this awesom
 
 
 ### CMD
-![image](https://github.com/m3f157O/combine_harvester/assets/79704302/9d716888-1821-4489-8176-d7644ddab922)
+![image](https://github.com/m3f157O/combine_harvester/assets/79704302/f033d48e-019e-4179-9b22-ad60e1552a7e)
+
 
 
 ### DECRYPT
