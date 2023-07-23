@@ -5,7 +5,7 @@ Coupled dump decoder @ https://github.com/ruggi99/combine-decoder
 
 ## Introduction
 
-By readapting the safetydump rust library (many thanks to the author!!!), I have been able to EASILY bypass all the countermeasures put in place by most EDRs, except Kaspersky EDR
+By readapting the safetydump rust library (many thanks to the author!!!), I have been able to EASILY bypass all the countermeasures put in place by most EDRs, except Kaspersky EDR, and TrendMicro (new detection, from a couple hours ago)
 
 dbghelp!MiniDumpWriteDump with a custom callback could be used, until a year ago, to bypass most antivirus/EDR solutions. 
 
