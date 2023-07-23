@@ -5,6 +5,8 @@ Check your windows local security authority credential's safety with this awesom
 
 By readapting the safetydump rust library (many thanks to the author!!!), I have been able to EASILY bypass all the countermeasures put in place by most EDRs, except Kaspersky EDR
 
+Of course RunAsPPL and CredentialGuard are effective mitigations against this sub-technique, but it's not always possible to enable these options.
+
 
 dbghelp!MiniDumpWriteDump with a custom callback could be used, until a year ago, to bypass most antivirus/EDR solutions. 
 
