@@ -15,7 +15,7 @@ Now, most of them EASILY recognize statically or behaviorally the system API usa
 If you have a Go implementation, please give me feedback. I'm on it but still have some bugs related to memory size
 
 
-I suspect that there is still no way to monitor the MiniDumpWriteDump callback, and all the protection against a possible credential dump via this technique is then entrusted to machine learning detections. This is confirmed by the following:
+I suspect that there is still no way to monitor the MiniDumpWriteDump callback, and all the protection against a possible credential dump via this technique is then entrusted to machine learning detections.
 
 
 
