@@ -1,5 +1,7 @@
 # combine
-Check your windows local security authority credential's safety with this awesome tool
+Check your windows local security authority credential's safety with this awesome tool.
+
+Coupled dump decoder @ https://github.com/ruggi99/combine-decoder
 
 ## Introduction
 
