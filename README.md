@@ -60,5 +60,5 @@ Many code snippets are from
 I am not responsible for any improper usage of this tool. This is meant for research and security testing purpose.
 
 ## Notes
-The only effective mitigations against this sub-technique are RunAsPPL and CredentialGuard, but it's not always possible to enable these options.
+The only effective mitigations (that I know of) against this sub-technique are RunAsPPL and CredentialGuard, but it's not always possible to enable these options.
 
