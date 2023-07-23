@@ -5,16 +5,11 @@ Check your windows local security authority credential's safety with this awesom
 
 By readapting the safetydump rust library (many thanks to the author!!!), I have been able to EASILY bypass all the countermeasures put in place by most EDRs, except Kaspersky EDR
 
-Of course RunAsPPL and CredentialGuard are effective mitigations against this sub-technique, but it's not always possible to enable these options.
-
-
 dbghelp!MiniDumpWriteDump with a custom callback could be used, until a year ago, to bypass most antivirus/EDR solutions. 
 
 
 Now, most of them EASILY recognize statically or behaviorally the system API usage pattern, for programs written in languages such as  C++, Delphi and C#. 
-
-(it could be possible anyway thanks to undocumented NtOpenProcessEx but that's off topic) 
-
+(it could be possible anyway thanks to undocumented NtOpenProcessEx but that's another story) 
 
 
 If you have a Go implementation, please give me feedback. I'm on it but still have some bugs related to memory size
@@ -63,3 +58,7 @@ Many code snippets are from
 
 ## Disclaimer
 I am not responsible for any improper usage of this tool. This is meant for research and security testing purpose.
+
+## Notes
+The only effective mitigations against this sub-technique are RunAsPPL and CredentialGuard, but it's not always possible to enable these options.
+
