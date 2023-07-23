@@ -1,6 +1,25 @@
 # combine
 Check your windows local security authority credential's safety with this awesome tool
 
+## Introduction
+
+dbghelp!MiniDumpWriteDump with a custom callback could be used, until a year ago, to bypass most antivirus/EDR solutions. 
+
+
+Now, most of them EASILY recognize statically or behaviorally the system API usage pattern, for programs written in languages such as  C++, Delphi and C#. 
+
+(it could be possible anyway thanks to undocumented NtOpenProcessEx but that's off topic) 
+
+
+
+If you have a Go implementation, please give me feedback. I'm on it but still have some bugs related to memory size
+
+
+I suspect that there is still no way to monitor the MiniDumpWriteDump callback, and all the protection against a possible credential dump via this technique is then entrusted to machine learning detections. This is confirmed by the following:
+
+
+
+
 
 ## Usage
 
