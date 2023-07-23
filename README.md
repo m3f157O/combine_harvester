@@ -37,3 +37,5 @@ Many code snippets are from
 - https://github.com/azazelm3dj3d/lsass-dump/blob/main/Dump/Dump.cpp
 - https://rastamouse.me/dumping-lsass-with-duplicated-handles/
 
+## Disclaimer
+I am not responsible for any improper usage of this tool. This is meant for research and security testing purpose.
