@@ -38,14 +38,6 @@ I suspect that there is still no way to monitor the MiniDumpWriteDump callback, 
 ![image](https://github.com/m3f157O/combine_harvester/assets/79704302/01665c76-248c-4b5e-a2ba-2b23d55b5288)
 
 
-## Build
-If you try to compile the code in my repo, it most probably won't. This is intentional because, even if it's easy to realize, I don't feel safe in sharing such a possibly dangerous tool. 
-
-Don't worry, the exe is not backdoored :) 
-Full source code will be released in a few days
-
-If you really need this and you are a security professional or training, contact me, I'll give you the original source code for free.
-
 ## References
 Done thanks to  
 - https://loong716.top/posts/lsass/
